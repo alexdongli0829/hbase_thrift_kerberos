@@ -37,7 +37,7 @@ public class DemoClient {
 
   public static void main(String[] args) throws Exception {
     System.out.println("Thrift2 Demo");
-    System.out.println("Usage: DemoClient [host=localhost] [port=9090] [secure=false]");
+    System.out.println("Usage: DemoClient [host=localhost] [port=9091] [secure=false]");
     System.out.println("This demo assumes you have a table called \"example\" with a column family called \"family1\"");
 
     // use passed in arguments instead of defaults
@@ -47,20 +47,16 @@ public class DemoClient {
     if (args.length >= 2) {
       port = Integer.parseInt(args[1]);
     }
+
+    String principal = null;
     org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
     conf.addResource("/etc/hbase/conf/hbase-site.xml");
-    //String principal = conf.get("hbase.thrift2.kerberos.principal");
-    String principal = "thrift2@test.com";
-/***
-    if (principal != null) {
+    String ker= conf.get("hbase.security.authentication");
+    if (ker.equals("kerberos")) {
       secure = true;
-      int slashIdx = principal.indexOf("/");
-      int atIdx = principal.indexOf("@");
-      int idx = slashIdx != -1 ? slashIdx : atIdx != -1 ? atIdx : principal.length();
-      user = principal.substring(0, idx);
+      principal = "thrift2@test.com";
+      user = "hbase";
     }
-***/
-	user="hbase";
     if (args.length >= 3) {
       secure = Boolean.parseBoolean(args[2]);
     }
@@ -143,11 +139,16 @@ public class DemoClient {
      * To authenticate the DemoClient, kinit should be invoked ahead.
      * Here we try to get the Kerberos credential from the ticket cache.
      */
+    // to address can not find the KDC error
+    System.setProperty("java.security.krb5.kdc","ip-172-31-19-216.ap-southeast-2.compute.internal");
+    System.setProperty("java.security.krb5.realm","test.com");
+
     LoginContext context = new LoginContext("", new Subject(), null,
       new Configuration() {
         @Override
         public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
           Map<String, String> options = new HashMap<String, String>();
+	  // update the useKyeTab ,keyTab and principal property
           options.put("useKeyTab", "true");
           options.put("keyTab", "/home/hadoop/hbase_thrift_kerberos/java/thrift2.keytab");
           options.put("storeKey", "false");
