@@ -55,8 +55,8 @@ public class DemoClient {
     realm = args[3];
 
     org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-    conf.addResource("hbase-site.xml");
-    String ker= conf.get("hbase.security.authentication");
+    //conf.addResource("hbase-site.xml");
+    //String ker= conf.get("hbase.security.authentication");
     secure = true;
     user = "hbase";
     principal = "thrift2@"+realm;
