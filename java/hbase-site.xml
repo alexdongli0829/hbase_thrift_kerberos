@@ -69,19 +69,6 @@
       <name>hbase.thrift.security.qop</name>
       <value>auth</value>
     </property>
-    <!-- Replacing kerberos principal for thrift2 gateway -->
-    <property>
-      <name>hbase.thrift2.keytab.file</name>
-      <value>/etc/hbase.keytab</value>
-    </property>
-    <property>
-      <name>hbase.thrift2.kerberos.principal</name>
-      <value>hbase/_HOST@test.com</value>
-    </property>
-    <property>
-      <name>hbase.thrift2.security.qop</name>
-      <value>auth</value>
-    </property>
     <!-- Setting keytab and principal for REST gateway -->
     <property>
       <name>hbase.rest.keytab.file</name>

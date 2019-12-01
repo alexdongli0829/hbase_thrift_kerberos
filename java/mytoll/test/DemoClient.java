@@ -34,35 +34,37 @@ public class DemoClient {
   private static int port = 9091;
   private static boolean secure = false;
   private static String user = null;
+  private static String kdc= null;
+  private static String realm= null;
+  private static String principal= null;
+  private static String keytab= null;
 
   public static void main(String[] args) throws Exception {
     System.out.println("Thrift2 Demo");
-    System.out.println("Usage: DemoClient [host=localhost] [port=9091] [secure=false]");
     System.out.println("This demo assumes you have a table called \"example\" with a column family called \"family1\"");
 
     // use passed in arguments instead of defaults
-    if (args.length >= 1) {
-      host = args[0];
-    }
-    if (args.length >= 2) {
-      port = Integer.parseInt(args[1]);
+    if (args.length != 4) {
+	System.out.println("Usage: DemoClient [host=localhost] [port=9091] [kdc] [realm]");
+	return; 
     }
 
-    String principal = null;
+    host = args[0];
+    port = Integer.parseInt(args[1]);
+    kdc = args[2];
+    realm = args[3];
+
     org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-    conf.addResource("/etc/hbase/conf/hbase-site.xml");
+    conf.addResource("hbase-site.xml");
     String ker= conf.get("hbase.security.authentication");
-    if (ker.equals("kerberos")) {
-      secure = true;
-      principal = "thrift2@test.com";
-      user = "hbase";
-    }
-    if (args.length >= 3) {
-      secure = Boolean.parseBoolean(args[2]);
-    }
+    secure = true;
+    user = "hbase";
+    principal = "thrift2@"+realm;
+    // this is the user name for the thrift2 server, by default, its "hbase" which is different user from thrift client
+   
 
     final DemoClient client = new DemoClient();
-    Subject.doAs(getSubject(principal),
+    Subject.doAs(getSubject(),
       new PrivilegedExceptionAction<Void>() {
         @Override
         public Void run() throws Exception {
@@ -117,22 +119,22 @@ public class DemoClient {
     client.put(table, put);
 
     TGet get = new TGet();
-    get.setRow("row2".getBytes());
+    get.setRow("row1".getBytes());
 
     TResult result = client.get(table, get);
 
-    System.out.print("row = " + new String(result.getRow()));
+    System.out.println("row = " + new String(result.getRow()));
     for (TColumnValue resultColumnValue : result.getColumnValues()) {
-      System.out.print("family = " + new String(resultColumnValue.getFamily()));
-      System.out.print("qualifier = " + new String(resultColumnValue.getFamily()));
-      System.out.print("value = " + new String(resultColumnValue.getValue()));
-      System.out.print("timestamp = " + resultColumnValue.getTimestamp());
+      System.out.println("family = " + new String(resultColumnValue.getFamily()));
+      System.out.println("qualifier = " + new String(resultColumnValue.getFamily()));
+      System.out.println("value = " + new String(resultColumnValue.getValue()));
+      System.out.println("timestamp = " + resultColumnValue.getTimestamp());
     }
 
     transport.close();
   }
 
-  static Subject getSubject(String princ) throws Exception {
+  static Subject getSubject() throws Exception {
     if (!secure) return new Subject();
 
     /*
@@ -140,8 +142,8 @@ public class DemoClient {
      * Here we try to get the Kerberos credential from the ticket cache.
      */
     // to address can not find the KDC error
-    System.setProperty("java.security.krb5.kdc","ip-172-31-19-216.ap-southeast-2.compute.internal");
-    System.setProperty("java.security.krb5.realm","test.com");
+    System.setProperty("java.security.krb5.kdc",kdc);
+    System.setProperty("java.security.krb5.realm",realm);
 
     LoginContext context = new LoginContext("", new Subject(), null,
       new Configuration() {
@@ -150,9 +152,9 @@ public class DemoClient {
           Map<String, String> options = new HashMap<String, String>();
 	  // update the useKyeTab ,keyTab and principal property
           options.put("useKeyTab", "true");
-          options.put("keyTab", "/home/hadoop/hbase_thrift_kerberos/java/thrift2.keytab");
+          options.put("keyTab", "thrift2.keytab");
           options.put("storeKey", "false");
-          options.put("principal", princ);
+          options.put("principal", principal);
           options.put("doNotPrompt", "true");
           options.put("useTicketCache", "true");
           options.put("renewTGT", "true");
