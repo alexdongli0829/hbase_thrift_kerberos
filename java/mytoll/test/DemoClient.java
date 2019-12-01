@@ -48,8 +48,10 @@ public class DemoClient {
       port = Integer.parseInt(args[1]);
     }
     org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-    conf.addResource("hbase-site.xml");
-    String principal = conf.get("hbase.thrift2.kerberos.principal");
+    conf.addResource("/etc/hbase/conf/hbase-site.xml");
+    //String principal = conf.get("hbase.thrift2.kerberos.principal");
+    String principal = "thrift2@test.com";
+/***
     if (principal != null) {
       secure = true;
       int slashIdx = principal.indexOf("/");
@@ -57,6 +59,8 @@ public class DemoClient {
       int idx = slashIdx != -1 ? slashIdx : atIdx != -1 ? atIdx : principal.length();
       user = principal.substring(0, idx);
     }
+***/
+	user="hbase";
     if (args.length >= 3) {
       secure = Boolean.parseBoolean(args[2]);
     }
@@ -145,7 +149,7 @@ public class DemoClient {
         public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
           Map<String, String> options = new HashMap<String, String>();
           options.put("useKeyTab", "true");
-          options.put("keyTab", "/home/hadoop/hbase_thrift_kerberos/java/hadoop.keytab");
+          options.put("keyTab", "/home/hadoop/hbase_thrift_kerberos/java/thrift2.keytab");
           options.put("storeKey", "false");
           options.put("principal", princ);
           options.put("doNotPrompt", "true");
