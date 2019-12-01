@@ -31,7 +31,7 @@ import org.apache.thrift.transport.TTransport;
 public class DemoClient {
 
   private static String host = "localhost";
-  private static int port = 9090;
+  private static int port = 9091;
   private static boolean secure = false;
   private static String user = null;
 
@@ -48,7 +48,8 @@ public class DemoClient {
       port = Integer.parseInt(args[1]);
     }
     org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-    String principal = conf.get("hbase.thrift.kerberos.principal");
+    conf.addResource("hbase-site.xml");
+    String principal = conf.get("hbase.thrift2.kerberos.principal");
     if (principal != null) {
       secure = true;
       int slashIdx = principal.indexOf("/");
@@ -61,7 +62,7 @@ public class DemoClient {
     }
 
     final DemoClient client = new DemoClient();
-    Subject.doAs(getSubject(),
+    Subject.doAs(getSubject(principal),
       new PrivilegedExceptionAction<Void>() {
         @Override
         public Void run() throws Exception {
@@ -131,7 +132,7 @@ public class DemoClient {
     transport.close();
   }
 
-  static Subject getSubject() throws Exception {
+  static Subject getSubject(String princ) throws Exception {
     if (!secure) return new Subject();
 
     /*
@@ -143,8 +144,10 @@ public class DemoClient {
         @Override
         public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
           Map<String, String> options = new HashMap<String, String>();
-          options.put("useKeyTab", "false");
+          options.put("useKeyTab", "true");
+          options.put("keyTab", "/home/hadoop/hbase_thrift_kerberos/java/hadoop.keytab");
           options.put("storeKey", "false");
+          options.put("principal", princ);
           options.put("doNotPrompt", "true");
           options.put("useTicketCache", "true");
           options.put("renewTGT", "true");
