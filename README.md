@@ -14,15 +14,6 @@ xst -k thrift2.keytab -norandkey thrift2
 
 #copy thrift2.keytab to the class path
 
-compile and run:
-javac -cp /usr/lib/hbase/*:/usr/lib/hbase/lib/* mytoll/test/DemoClient.java
-java -cp .:/usr/lib/hbase/*:/usr/lib/hbase/lib/* mytoll.test.DemoClient ip-172-31-26-37.ap-southeast-2.compute.internal 9091 ip-172-31-26-37.ap-southeast-2.compute.internal test.com
-
-
-
-
-
-For the DemoClient
 
 Need thrift2.keytab in the class path. I tried to add the keytab into the jar however, its not working, no idea why
 
