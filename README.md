@@ -2,6 +2,10 @@ hbase thrift2 java example reference: https://github.com/apache/hbase/blob/branc
 
 preprequest
 
+#create hbase table:
+
+create 'example', 'family1'
+
 #copy user key tab to the class path
 
 #run the thrift2:
