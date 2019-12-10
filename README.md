@@ -2,7 +2,7 @@ hbase thrift2 java example reference: https://github.com/apache/hbase/blob/branc
 
 preprequest
 
-#copy hbase-site.xml and user key tab to the class path
+#copy user key tab to the class path
 
 #run the thrift2:
 sudo /usr/lib/hbase/bin/hbase-daemon.sh start thrift2 -p 9091 --infoport 9096
