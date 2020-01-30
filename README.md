@@ -6,7 +6,6 @@ preprequest
 
 create 'example', 'family1'
 
-#copy user key tab to the class path
 
 #run the thrift2:
 sudo /usr/lib/hbase/bin/hbase-daemon.sh start thrift2 -p 9091 --infoport 9096
@@ -17,9 +16,7 @@ ank thrift2
 xst -k thrift2.keytab -norandkey thrift2
 
 #copy thrift2.keytab to the class path
-
-
-Need thrift2.keytab in the class path. I tried to add the keytab into the jar however, its not working, no idea why
+Need thrift2.keytab in the class path. I tried to add the keytab into the jar however, its not working
 
 example:
 
